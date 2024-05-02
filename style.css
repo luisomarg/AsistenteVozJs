@@ -41,12 +41,44 @@ h2#resultado {
   top: 25%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: lightblue;
+  background-color: blue;
   color: white;
+  border-radius: 10px;
+  border: 2px solid blue;
+}
+
+#detener {
+  text-align: center;
+  font-size: 24px;
+  position: absolute;
+  top: 25%;
+  right: 40%;
+  transform: translate(50%, -50%);
+  background-color: red;
+  color: white;
+  border: 2px solid red;
   border-radius: 10px;
 }
 
 #activar:active {
+  background-color: white;
+  color: blue;
+}
+
+#ajustes {
+    text-align: center;
+    font-size: 24px;
+    position: absolute;
+    top: 25%;
+    right: 60%;
+    transform: translate(50%, -50%);
+    background-color: blue;
+    color: white;
+    border-radius: 10px;
+    border: 2px solid blue;
+}
+
+#ajustes:active {
   background-color: white;
   color: blue;
 }

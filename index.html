@@ -11,14 +11,19 @@
 <body>
   <h1 id="voiceSearchTitle">Busqueda por voz 🔍️</h1>
 
+  <button id="ajustes" onclick="window.location.href='ajustes.html'">Ajustes</button>
+
 
   <button id="activar" onclick="recognition.start()">Iniciar</button>
+
+  <button id="detener" onclick="stopRecognition()">Detener</button>
 
   <h2 id="resultado">Has buscado:</h2>
 
 
   <script src="script.js"></script>
   <p id="speechText"></p>
+
 
 
 </body>
