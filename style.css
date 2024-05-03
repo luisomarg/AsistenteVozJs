@@ -1,3 +1,30 @@
+/* Resetear algunas reglas de estilo de Bootstrap */
+body {
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+}
+
+h1, h2, p {
+  margin: 0;
+}
+
+/* Estilos específicos de la aplicación */
+#speechText {
+  font-size: 1.25rem;
+  box-shadow: 2px 2px 5px lightgrey;
+  background-color: lightgray;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Estilos para pantallas pequeñas */
+@media (max-width: 576px) {
+  #speechText {
+    font-size: 1rem;
+  }
+}
+
 html {
   height: 100%;
   width: 100%;
@@ -21,44 +48,9 @@ h2#resultado {
   transform: translate(-50%, -50%);
 }
 
-#speechText {
-  text-align: center;
-  font-size: 16px;
-  position: absolute;
-  top: 60%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 2px 2px 5px lightgrey;
-  background-color: lightgray;
-  padding: 10px;
-  border-radius: 5px;
-}
 
-#activar {
-  text-align: center;
-  font-size: 24px;
-  position: absolute;
-  top: 25%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: blue;
-  color: white;
-  border-radius: 10px;
-  border: 2px solid blue;
-}
 
-#detener {
-  text-align: center;
-  font-size: 24px;
-  position: absolute;
-  top: 25%;
-  right: 40%;
-  transform: translate(50%, -50%);
-  background-color: red;
-  color: white;
-  border: 2px solid red;
-  border-radius: 10px;
-}
+
 
 #activar:active {
   background-color: white;
