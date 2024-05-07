@@ -4,6 +4,9 @@ let searchEngine = localStorage.getItem('searchEngine') || 'google';
 // Obtener el idioma seleccionado del localStorage
 let language = localStorage.getItem('language') || 'es-ES';
 
+// Inicializar el historial de búsquedas
+let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+
 // Código para el reconocimiento de voz y buscar en el motor seleccionado
 const recognition = new webkitSpeechRecognition();
 recognition.lang = language;
@@ -14,11 +17,29 @@ recognition.onresult = (event) => {
   const searchQuery = `https://www.${searchEngine}.com/search?q=${speechToText}`;
   window.open(searchQuery, "_blank");
 
-  document.getElementById("speechText").textContent = speechToText;
+  // Agregar la nueva búsqueda al historial
+  searchHistory.push({ query: speechToText, url: searchQuery });
+  localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+
+  // Actualizar el historial en la página
+  updateSearchHistory();
 };
 
 function stopRecognition() {
   recognition.stop();
+}
+
+// Función para actualizar el historial de búsquedas en la página
+function updateSearchHistory() {
+  const searchHistoryList = document.getElementById('search-history');
+  searchHistoryList.innerHTML = '';
+
+  searchHistory.forEach(search => {
+    const listItem = document.createElement('li');
+    listItem.classList.add('list-group-item');
+    listItem.textContent = `Búsqueda: ${search.query} - URL: ${search.url}`;
+    searchHistoryList.appendChild(listItem);
+  });
 }
 
 // Código para guardar el motor de búsqueda y el idioma seleccionados en el localStorage
@@ -35,3 +56,6 @@ if (window.location.pathname.includes('ajustes.html')) {
     window.location.href = 'index.html'; // Redirigir a index.html después de guardar
   });
 }
+
+// Cargar el historial de búsquedas al cargar la página
+window.addEventListener('load', updateSearchHistory);
