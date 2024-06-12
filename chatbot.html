@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chatbot de Voz</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .btn {
+            margin-right: 5px;
+        }
+
+        .text-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .text-container textarea {
+            margin-bottom: 10px;
+        }
+
+        .text-container .btn-group {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="text-container">
+        <h1>Chatbot de Voz 🤖️</h1>
+        <label for="prompt">Ingresa tu prompt:</label>
+        <textarea id="prompt" class="form-control"></textarea>
+        <div class="btn-group">
+            <button onclick="generateResponse()" class="btn btn-primary">Generar respuesta</button>
+            <button id="startSpeechButton" class="btn btn-secondary">Activar reconocimiento de voz</button>
+            <button id="stopSpeechButton" class="btn btn-danger" disabled>Detener reconocimiento de voz</button>
+        </div>
+        <h2>Respuesta:</h2>
+        <textarea id="response" class="form-control" readonly></textarea>
+    </div>
+
+    <script type="module">
+        import {GoogleGenerativeAI} from "https://cdn.skypack.dev/@google/generative-ai";
+
+        const API_KEY = "AIzaSyDVa1F1IO9-95FoN6asV1px1yn-JsELdsk"; // Reemplaza con tu clave API
+        const genAI = new GoogleGenerativeAI(API_KEY);
+
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false; // Cambio a false para evitar resultados intermedios
+
+        let recognizing = false;
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById("prompt").value += transcript + " ";
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+            recognizing = false;
+            document.getElementById("stopSpeechButton").disabled = true;
+            document.getElementById("startSpeechButton").disabled = false;
+        };
+
+        const startSpeechButton = document.getElementById("startSpeechButton");
+        startSpeechButton.addEventListener("click", () => {
+            recognition.start();
+            recognizing = true;
+            document.getElementById("stopSpeechButton").disabled = false;
+            document.getElementById("startSpeechButton").disabled = true;
+        });
+
+        const stopSpeechButton = document.getElementById("stopSpeechButton");
+        stopSpeechButton.addEventListener("click", () => {
+            recognition.stop();
+            recognizing = false;
+            document.getElementById("stopSpeechButton").disabled = true;
+            document.getElementById("startSpeechButton").disabled = false;
+        });
+
+        window.generateResponse = async function () {
+            const prompt = document.getElementById("prompt").value;
+            const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = await response.text();
+            document.getElementById("response").value = text;
+
+            const sentences = text.match(/\(?[^.!?]+[.!?]\)?/g);
+            speakSentences(sentences);
+        };
+
+        function speakSentences(sentences) {
+            if (sentences.length > 0) {
+                const sentence = sentences.shift();
+                const utterance = new SpeechSynthesisUtterance(sentence);
+                window.speechSynthesis.speak(utterance);
+                utterance.onend = () => {
+                    speakSentences(sentences);
+                };
+            }
+        }
+    </script>
+</body>
+
+</html>
