@@ -41,6 +41,11 @@
             justify-content: center;
             margin-bottom: 20px;
         }
+
+        #response {
+            min-height: 100px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -66,9 +71,16 @@
 
         const recognition = new webkitSpeechRecognition();
         recognition.continuous = true;
-        recognition.interimResults = false; // Cambio a false para evitar resultados intermedios
+        recognition.interimResults = false;
 
         let recognizing = false;
+        let conversationHistory = [];
+
+        // Cargar el historial de conversación al iniciar
+        if (localStorage.getItem('conversationHistory')) {
+            conversationHistory = JSON.parse(localStorage.getItem('conversationHistory'));
+            updateResponseArea();
+        }
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
@@ -101,17 +113,39 @@
         window.generateResponse = async function () {
             const prompt = document.getElementById("prompt").value;
             const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
-            const result = await model.generateContent(prompt);
+
+            // Agregar el historial de la conversación al prompt
+            const fullPrompt = conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + `\nHuman: ${prompt}\nAI:`;
+
+            const result = await model.generateContent(fullPrompt);
             const response = await result.response;
             const text = await response.text();
-            document.getElementById("response").value = text;
+
+            // Agregar el nuevo mensaje al historial
+            conversationHistory.push({role: 'Human', content: prompt});
+            conversationHistory.push({role: 'AI', content: text});
+
+            // Guardar el historial en el almacenamiento local
+            localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+
+            updateResponseArea();
 
             const sentences = text.match(/\(?[^.!?]+[.!?]\)?/g);
             speakSentences(sentences);
+
+            // Limpiar el área de prompt
+            document.getElementById("prompt").value = '';
         };
 
+        function updateResponseArea() {
+            const responseArea = document.getElementById("response");
+            responseArea.value = conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n\n');
+            responseArea.style.height = 'auto';
+            responseArea.style.height = responseArea.scrollHeight + 'px';
+        }
+
         function speakSentences(sentences) {
-            if (sentences.length > 0) {
+            if (sentences && sentences.length > 0) {
                 const sentence = sentences.shift();
                 const utterance = new SpeechSynthesisUtterance(sentence);
                 window.speechSynthesis.speak(utterance);
